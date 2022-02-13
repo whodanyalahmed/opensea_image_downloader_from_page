@@ -1,7 +1,8 @@
 import os
 import requests
 import shutil
-import time,datetime
+import time
+import datetime
 from bs4 import BeautifulSoup
 from selenium import webdriver
 
@@ -27,14 +28,17 @@ def chrome(headless=False):
 # Pass True if you want to hide chrome browser
 driver = chrome()
 
-logFile = open("log.txt","a+")
-logFile.write("\nStarted at: " + str(datetime.datetime.now()))
+logFile = open("log.txt", "a+")
+# another log file to tractk   downloaded images
+DownloadslogFile = open("downloads.txt", "a+")
+logFile.write("Started at: " + str(datetime.datetime.now())+"\n")
 driver.get('https://opensea.io/collection/clonex')
 # This function iteratively clicks on the "Next" button at the bottom right of the search page.
 image_srcs = []
 
-def scroll_down_page_and_get_images(speed=8,num_of_nfts=10):
-    
+
+def scroll_down_page_and_get_images(speed=8, num_of_nfts=10):
+
     current_scroll_position, new_height = 0, 1
     while current_scroll_position <= new_height:
         current_scroll_position += speed
@@ -47,32 +51,47 @@ def scroll_down_page_and_get_images(speed=8,num_of_nfts=10):
         # parse the page source
         soup = BeautifulSoup(page_source, 'html.parser')
         # get the list of all the images with src that starts with "https://lh3"
-        images = soup.find_all('img', src=lambda x: x and x.startswith('https://lh3'))
+        images = soup.find_all(
+            'img', src=lambda x: x and x.startswith('https://lh3'))
         # get the list of all src of images
         global image_srcs
-        image_srcs = [img['src'] for img in images]
+        # remove the once available in log file
+
+        temp = [img['src'] for img in images]
+
+        # remove the once which are already downloaded from downloads.txt
+        for image_src in temp:
+            if os.path.basename(image_src) in open("downloads.txt").read():
+                print(temp)
+                temp.remove(image_src)
+                print("removed: ", image_src)
+                print(temp)
+        # added temp to image_srcs
+        image_srcs.extend(temp)
+        # remove duplicates
+        image_srcs = list(set(image_srcs))
+        print(len(image_srcs))
         # check length of image_srcs is equal to num_of_nfts
         if len(image_srcs) >= num_of_nfts:
             break
-        
-
 
 
 # scroll_down_page(10)
 driver.implicitly_wait(10)
-scroll_down_page_and_get_images(num_of_nfts)
+scroll_down_page_and_get_images(300, num_of_nfts=num_of_nfts)
 print("successfully completed the page scrolling")
-logFile.write("\nsuccessfully completed the page scrolling")
+logFile.write("successfully completed the page scrolling"+"\n")
 
 # download images from image_srcs using requests
 
-for image_src in image_srcs:
+for image_src in image_srcs[:num_of_nfts]:
+    # print(image_src)
     # skip the image if it is already present in the logfile
     if os.path.basename(image_src) in open("log.txt").read():
         print("skipping image: " + image_src)
-        logFile.write("\nskipping image: " + image_src)
+        logFile.write("skipping image: " + image_src+"\n")
         continue
-    print(image_src)
+    print("info : Downloading image: " + image_src)
     # save image to local directory
     response = requests.get(image_src, stream=True)
     # check if path exists if doesnt create it
@@ -82,7 +101,13 @@ for image_src in image_srcs:
 
     with open(os.getcwd()+"\\images\\"+os.path.basename(image_src)+".png", 'wb') as out_file:
         shutil.copyfileobj(response.raw, out_file)
-        logFile.write("\n"+os.path.basename(image_src)+".png")
+        logFile.write(os.path.basename(image_src)+".png"+"\n")
+        DownloadslogFile.write(os.path.basename(image_src)+".png"+"\n")
 
     del response
     time.sleep(1)
+logFile.close()
+DownloadslogFile.close()
+# close the driver and free the memory
+driver.quit()
+print("successfully completed the downloads")
