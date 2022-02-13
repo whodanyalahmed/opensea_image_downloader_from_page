@@ -26,7 +26,7 @@ def chrome(headless=False):
 
 
 # Pass True if you want to hide chrome browser
-driver = chrome()
+driver = chrome(True)
 
 logFile = open("log.txt", "a+")
 # another log file to tractk   downloaded images
@@ -61,28 +61,29 @@ def scroll_down_page_and_get_images(speed=8, num_of_nfts=10):
 
         # remove the once which are already downloaded from downloads.txt
 
+        no_urls = ["https://lh3.googleusercontent.com/XN0XuD8Uh3jyRWNtPTFeXJg_ht8m5ofDx6aHklOiy4amhFuWUa0JaR6It49AH8tlnYS386Q0TW_-Lmedn0UET_ko1a3CbJGeu5iHMg=s130",
+                   "https://lh3.googleusercontent.com/4elUtz8UyFYDH34vDxd4hpQX8S-EdkFq8s9ombkuQTDBWLwHvsjRM_RXWT2zX8Vt2bAiO2BHslwN57FyTW1JIn_FyFI0BsZfmvmeJQ=h600"]
         for image_src in temp:
-            if os.path.basename(image_src) in open("downloads.txt").read():
+            if os.path.basename(image_src) in open("downloads.txt").read() or image_src in no_urls:
                 # print(len(temp))
                 temp.remove(image_src)
                 # print("removed: ", image_src)
                 # print(len(temp))
         image_srcs.extend(temp)
-# Remove the below link
-        no_urls = ["https://lh3.googleusercontent.com/XN0XuD8Uh3jyRWNtPTFeXJg_ht8m5ofDx6aHklOiy4amhFuWUa0JaR6It49AH8tlnYS386Q0TW_-Lmedn0UET_ko1a3CbJGeu5iHMg=s130","https://lh3.googleusercontent.com/4elUtz8UyFYDH34vDxd4hpQX8S-EdkFq8s9ombkuQTDBWLwHvsjRM_RXWT2zX8Vt2bAiO2BHslwN57FyTW1JIn_FyFI0BsZfmvmeJQ=h600"]
-
+        # Remove the below link
 
         for image_src in image_srcs:
             if os.path.basename(image_src) in open("downloads.txt").read() or image_src in no_urls:
-                print(len(image_srcs))
+                # print(len(image_srcs))
                 image_srcs.remove(image_src)
-                print("removed: ", image_src)
-                print(len(image_srcs))
+                # print("removed: ", image_src)
+                # print(len(image_srcs))
 
         # added temp to image_srcs
         # remove duplicates
         image_srcs = list(set(image_srcs))
-        print(len(image_srcs))
+        # print(len(image_srcs))
+        print("info: searching.....")
         # check length of image_srcs is equal to num_of_nfts
         if len(image_srcs) >= num_of_nfts:
             break
@@ -90,7 +91,7 @@ def scroll_down_page_and_get_images(speed=8, num_of_nfts=10):
 
 # scroll_down_page(10)
 driver.implicitly_wait(10)
-scroll_down_page_and_get_images(100, num_of_nfts=num_of_nfts)
+scroll_down_page_and_get_images(150, num_of_nfts=num_of_nfts)
 print("successfully completed the page scrolling")
 logFile.write("successfully completed the page scrolling"+"\n")
 
