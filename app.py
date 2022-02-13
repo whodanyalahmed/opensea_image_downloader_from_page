@@ -60,14 +60,23 @@ def scroll_down_page_and_get_images(speed=8, num_of_nfts=10):
         temp = [img['src'] for img in images]
 
         # remove the once which are already downloaded from downloads.txt
+
         for image_src in temp:
             if os.path.basename(image_src) in open("downloads.txt").read():
-                print(temp)
+                print(len(temp))
                 temp.remove(image_src)
                 print("removed: ", image_src)
-                print(temp)
-        # added temp to image_srcs
+                print(len(temp))
         image_srcs.extend(temp)
+
+        for image_src in image_srcs:
+            if os.path.basename(image_src) in open("downloads.txt").read():
+                print(len(image_srcs))
+                image_srcs.remove(image_src)
+                print("removed: ", image_src)
+                print(len(image_srcs))
+
+        # added temp to image_srcs
         # remove duplicates
         image_srcs = list(set(image_srcs))
         print(len(image_srcs))
