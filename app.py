@@ -63,14 +63,17 @@ def scroll_down_page_and_get_images(speed=8, num_of_nfts=10):
 
         for image_src in temp:
             if os.path.basename(image_src) in open("downloads.txt").read():
-                print(len(temp))
+                # print(len(temp))
                 temp.remove(image_src)
-                print("removed: ", image_src)
-                print(len(temp))
+                # print("removed: ", image_src)
+                # print(len(temp))
         image_srcs.extend(temp)
+# Remove the below link
+        no_urls = ["https://lh3.googleusercontent.com/XN0XuD8Uh3jyRWNtPTFeXJg_ht8m5ofDx6aHklOiy4amhFuWUa0JaR6It49AH8tlnYS386Q0TW_-Lmedn0UET_ko1a3CbJGeu5iHMg=s130","https://lh3.googleusercontent.com/4elUtz8UyFYDH34vDxd4hpQX8S-EdkFq8s9ombkuQTDBWLwHvsjRM_RXWT2zX8Vt2bAiO2BHslwN57FyTW1JIn_FyFI0BsZfmvmeJQ=h600"]
+
 
         for image_src in image_srcs:
-            if os.path.basename(image_src) in open("downloads.txt").read():
+            if os.path.basename(image_src) in open("downloads.txt").read() or image_src in no_urls:
                 print(len(image_srcs))
                 image_srcs.remove(image_src)
                 print("removed: ", image_src)
@@ -87,16 +90,15 @@ def scroll_down_page_and_get_images(speed=8, num_of_nfts=10):
 
 # scroll_down_page(10)
 driver.implicitly_wait(10)
-scroll_down_page_and_get_images(300, num_of_nfts=num_of_nfts)
+scroll_down_page_and_get_images(100, num_of_nfts=num_of_nfts)
 print("successfully completed the page scrolling")
 logFile.write("successfully completed the page scrolling"+"\n")
 
 # download images from image_srcs using requests
-
 for image_src in image_srcs[:num_of_nfts]:
     # print(image_src)
     # skip the image if it is already present in the logfile
-    if os.path.basename(image_src) in open("log.txt").read():
+    if os.path.basename(image_src) in open("downloads.txt").read():
         print("skipping image: " + image_src)
         logFile.write("skipping image: " + image_src+"\n")
         continue
